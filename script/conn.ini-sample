@@ -1,0 +1,6 @@
+[default]
+user=your_snowflake_user_name
+private_key=/path/to/your/snowflake.pem
+;warehouse=(keep default)
+;account=(keep default)
+

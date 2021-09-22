@@ -1,0 +1,190 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "compare",
+            "options": {
+                "statusbar": {
+                    "tooltip": "Compare GIT and SF DDLs"
+                }
+            },
+            "type": "shell",
+            "command": "${execPath}",
+            "args": ["--reuse-window", "--diff", "${file}", "${workspaceFolder}/.diff/${fileBasename}"],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "dependsOn": ["_compare"],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "prepare",
+            "options": {
+                "statusbar": {
+                    "tooltip": "Prepare release_candidate.sql file"
+                }
+            },
+            "type": "process",
+            "command": "${execPath}",
+            "args": ["releases/release_candidate.sql"],
+            "presentation": {
+                "reveal": "never",
+                "showReuseMessage": false
+            },
+            "dependsOn": ["_prepare"],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "dry-run",
+            "options": {
+                "statusbar": {
+                    "tooltip": "Generate release and display it in console"
+                }
+            },
+            "type": "shell",
+            "command": "python3",
+            "args": ["script/cicd.py", "--dry-run", "--verbose", "deploy"],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "deploy",
+            "options": {
+                "statusbar": {
+                    "tooltip": "Deploy release based on release_candidate.sql"
+                }
+            },
+            "type": "shell",
+            "command": "python3",
+            "args": ["script/cicd.py", "deploy"],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "history",
+            "options": {
+                "statusbar": {
+                    "tooltip": "Display status and release history"
+                }
+            },
+            "type": "shell",
+            "command": "python3",
+            "args": ["script/cicd.py", "history"],
+            "presentation": {
+                "reveal": "always",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "migrate",
+            "options": {
+                "statusbar": {
+                    "tooltip": "Prepare & deploy combined"
+                }
+            },
+            "type": "shell",
+            "command": "python3",
+            "args": ["script/cicd.py", "migrate"],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "clone",
+            "options": {
+                "statusbar": {
+                    "tooltip": "Clones production into a new db (based on branch name)"
+                }
+            },
+            "type": "shell",
+            "command": "python3",
+            "args": ["script/cicd.py", "clone"],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "sync",
+            "options": {
+                "statusbar": {
+                    "tooltip": "Upgrade DB if the DB is older than the repo"
+                }
+            },
+            "type": "shell",
+            "command": "python3",
+            "args": ["script/cicd.py", "sync"],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "diff",
+            "options": {
+                "statusbar": {
+                    "tooltip": "Display diff from prod"
+                }
+            },
+            "type": "shell",
+            "command": "python3",
+            "args": ["script/cicd.py", "diff"],
+            "presentation": {
+                "reveal": "always",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "_prepare",
+            "options": {
+                "statusbar": {
+                    "hide": true
+                }
+            },            
+            "type": "shell",
+            "command": "python3",
+            "presentation": {
+                "reveal": "always",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "args": ["script/cicd.py", "prepare"],
+        },
+        {
+            "label": "_compare",
+            "options": {
+                "statusbar": {
+                    "hide": true
+                }
+            },            
+            "type": "shell",
+            "command": "python3",
+            "presentation": {
+                "reveal": "always",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "args": ["script/cicd.py", "compare", "--file", "${file}"]
+        },
+    ]
+}

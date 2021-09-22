@@ -1,0 +1,6 @@
+**/__pycache__
+.conn.*
+releases/release_candidate.*
+.vscode/settings.json
+**/.DS_Store
+.diff
