@@ -1,5 +1,3 @@
-import sys
-import os
 import re
 
 import snowflake.connector as sfc
@@ -10,7 +8,6 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import dsa
 from cryptography.hazmat.primitives import serialization
 
-from utils.dwhrepo import repo
 from utils.log import logger, is_debug
 from utils.config import config
 from utils.sql import split_sql, print_sql, RESUME_TASK
@@ -29,7 +26,7 @@ class Snowflake():
     def connect(self, branch):
         """Connect to the DB and returns connection."""
         db = self.get_db_name(branch)
-        key = self._get_key(config.read_user_config('private_key'))
+        key = self._get_key(config.read_user_config('private_key_file'))
         user = config.read_user_config('user')
         logger.debug("Connecting to Snowflake database {} as {}".format(db,
             user))
@@ -50,7 +47,7 @@ class Snowflake():
                     warehouse=config.read_config('warehouse'),
                     database=db,
                     autocommit=False,
-                    validate_default_parameters=True,
+                    #validate_default_parameters=True,
                     schema='PUBLIC')
         except DatabaseError as de:
             if "250001 (08001)" in str(de):
@@ -196,7 +193,7 @@ class Snowflake():
             return self.SF_STAGING_NAME
         else:
             return '_DEV_' + branch.upper()[:30]
-    
+
     def _get_key(self, keypath):
         """Converts PKCS8 file into bytes array acceptable by Snowflake connector."""
         with open(keypath, "rb") as key:
@@ -208,6 +205,5 @@ class Snowflake():
                     encoding=serialization.Encoding.DER,
                     format=serialization.PrivateFormat.PKCS8,
                     encryption_algorithm=serialization.NoEncryption())
-
 
 sf = Snowflake()

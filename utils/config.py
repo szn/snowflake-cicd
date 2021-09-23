@@ -1,13 +1,16 @@
 import configparser
 
+from os import path
 
 class Config():
     """Config wrapper that reads global config and user config."""
 
+    PROJECT_ROOT=path.join(path.dirname(path.realpath(__file__)), '..')
+
     def __init__(self):
         """Reads and parses global config file and users conn file."""
         self._config = configparser.ConfigParser()
-        self._config.read('script/config.ini')
+        self._config.read(path.join(self.PROJECT_ROOT, 'config.ini'))
         self._conn = configparser.ConfigParser()
         self._conn.read('.conn.ini')
 
