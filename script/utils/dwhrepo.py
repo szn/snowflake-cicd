@@ -30,7 +30,7 @@ class DWHRepo(Repo):
             branch = self.active_branch.name
         return self.SF_SAFE.sub('_', branch).upper()
 
-    def get_changed_files(self, index='master', prefix='', suffix='.sql',
+    def get_changed_files(self, index='main', prefix='', suffix='.sql',
             change_type="*"):
         """Returns all files changed from index."""
         files = {}
@@ -56,7 +56,7 @@ class DWHRepo(Repo):
         return "--.DIFF: " + diff + "\n"
     
     def diff_from_prod(self):
-        diff = self.git.diff('master', '--color=always', self.MODEL_DIR)
+        diff = self.git.diff('main', '--color=always', self.MODEL_DIR)
         diff = list(filter(lambda x: not '--- a/' in x, diff.split("\n")))
         diff = list(filter(lambda x: not '+++ b/' in x, diff))
         print("\n".join(diff))

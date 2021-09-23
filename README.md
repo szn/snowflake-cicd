@@ -55,25 +55,19 @@ If you have your key pair already generated you can jump to section **3b**.
 Generate unencrypted private key:
 
 ```sh
-$ openssl genrsa -out [username]_snowflake.pem 4096
-
-# for example: openssl genrsa -out jdoe_snowflake.pem 4096
+$ openssl genrsa 2048 | openssl pkcs8 -topk8 -inform PEM -out [username]_snowflake.p8 -nocrypt
 ```
 
 Now generate the public key by referencing the private key:
 
 ```sh
-$ openssl rsa -in [username]_snowflake.pem -pubout -out [username]_snowflake.pub
-
-# for example: openssl rsa -in jdoe_snowflake.pem -pubout -out jdoe_snowflake.pub
+$ openssl rsa -in [username]_snowflake.p8 -pubout -out [username]_snowflake.pub
 ```
 
 Assign the public key to the Snowflake user using ALTER USER. Run the query using your Snowflake's client:
 
 ```sql
 alter user [username] set rsa_public_key='MIIBIjANBgkqh...';
-
--- for example alter user jdoe set rsa_public_key='MIIBIjANBgkqh...';
 ```
 
 To fill in the `rsa_public_key` part you have to copy `[username]_snowflake.pub` file contents and paste it in SQL console.
@@ -168,7 +162,7 @@ Database clones with `no` in the last column (`has branch?`) should be dropped.
 <a name="clone"></a>
 #### `clone`
 
-Clones (or replaces) database based on production. New clone is created based on active branch name (see [branch to clone mapping](#branch-clone-mapping) in [abandoned](#abandoned) action to learn how branch name is mapped to clone name). Due to this it is impossible to run `clone` on master branch (**CICD** will refuse to run).
+Clones (or replaces) database based on production. New clone is created based on active branch name (see [branch to clone mapping](#branch-clone-mapping) in [abandoned](#abandoned) action to learn how branch name is mapped to clone name). Due to this it is impossible to run `clone` on main branch (**CICD** will refuse to run).
 
 If target clone does not exist the action will perform immediately. If target clone exists **CICD** will ask for confirmation before running. This behavior can be overwritten by `--force` flag.
 
@@ -181,7 +175,7 @@ Cloning DWH into _DEV_FEATURE_A
 Cloning finished
 ```
 
-Example run on `master` branch:
+Example run on `main` branch:
 ```
 Trying to create new database with name dwh...
 ```
@@ -217,10 +211,10 @@ Deploys changes from release candidate file.
 <a name="diff"></a>
 #### `diff`
 
-Show all the changes in `model` folder between current branch and `master`. Technically it runs:
+Show all the changes in `model` folder between current branch and `main`. Technically it runs:
 
 ```
-$ git diff --color=always master model
+$ git diff --color=always main model
 ```
 
 **`diff` example output:**
@@ -363,10 +357,10 @@ To make this process easier you have a difference highlighted. Notice lines star
 
 Sync performs all the missing releases in `releases` folder and run them against the database. It is somehow similar to `prepare` but it scans `releases` folder (with already prepared releases) instead of raw `model` folder.
 
-Syncing can be necessary if you merge changes from other branch (including `master`) into your branch. Imagine this scenario:
+Syncing can be necessary if you merge changes from other branch (including `main`) into your branch. Imagine this scenario:
 
 1. You branched out to `feature/a` and created already a release file `releases/feature_a.sql`.
-2. Other person was working on a `feature/b`, created `releases/feature_b.sql` and merge it to `master`.
+2. Other person was working on a `feature/b`, created `releases/feature_b.sql` and merge it to `main`.
 3. You decided to `git merge` before creating a pull request. This created `releases/feature_b.sql` in your repository. You have two options (as described in [history](#history) action):
   a. Faster: apply this missing release file by running [sync](#sync) action.
   b. Safer: run [clone](#clone) again to get a fresh copy of production.
@@ -432,14 +426,14 @@ Use `--force` or `-f` to:
 
 #### 1. Create branch
 
-Start from branching out from main branch. It's usually `master` but it doesn't have to. You can branch out from other active branch.
+Start from branching out from main branch. It's usually `main` but it doesn't have to. You can branch out from other active branch.
 
 You can branch-out using Jira, Bitbucket or command line. In all the examples below we are going to use command line and we are going to work on branch `feature/a`.
 
 ```sh
 # checking active branch
 $ git status
-On branch master
+On branch main
 [...]
 # making sure we have all the latest changes
 $ git pull

@@ -96,7 +96,7 @@ class Snowflake():
         finally:
             conn.close()
 
-    def run_single_statament(self, query, branch='master'):
+    def run_single_statament(self, query, branch='main'):
         """Runs single SQL statement against Snowflake."""
         conn = self.connect(branch)
         cur = conn.cursor()
@@ -190,7 +190,7 @@ class Snowflake():
 
     def get_db_name(self, branch):
         """Converts branch name into database name to operate on."""
-        if(branch.upper() == 'MASTER'):
+        if(branch.upper() == 'MAIN'):
             return self.SF_PROD_NAME
         elif(branch.upper() == 'DEVELOP'):
             return self.SF_STAGING_NAME
