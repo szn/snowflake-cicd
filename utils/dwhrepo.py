@@ -2,7 +2,7 @@ import os
 import re
 from datetime import datetime
 
-from git import Repo
+from git import Repo, InvalidGitRepositoryError
 
 from utils.log import logger
 from utils.config import config
@@ -106,5 +106,10 @@ class DWHRepo(Repo):
         """Returns last commit SHA (40 chars)"""
         return self.head.commit.hexsha
 
-repo = DWHRepo()
+try:
+    repo = DWHRepo()
+except InvalidGitRepositoryError:
+    logger.error('There is no GIT repo in this directory (or parent folders)')
+    quit(-1)
+
 
