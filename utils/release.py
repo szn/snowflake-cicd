@@ -156,6 +156,7 @@ class Release():
         
         sql = config.sql('get_base_commit').format(RELEASE_TABLE=self.RELEASE_TABLE)
         commit = sf.run_single_statament(sql, branch)
+        assert len(commit) > 0, "No data in release history table, you need to create an initial entry"
         logger.debug("Base commit hash in current database is {}."
                 .format(commit[0][0]))
         return commit[0][0]
