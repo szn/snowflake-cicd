@@ -17,8 +17,8 @@ class Snowflake():
     """Snowflake connector wrapper."""
 
     SF_VALID_NAME = re.compile(r'^[\w-]+$')
-    SF_PROD_NAME = 'DWH'
-    SF_STAGING_NAME = 'STAGING'
+    SF_PROD_NAME = config.read_config('production_db')
+    SF_STAGING_NAME = config.read_config('staging_db')
 
     def __init__(self):
         self._conn = None
@@ -28,25 +28,30 @@ class Snowflake():
         db = self.get_db_name(branch)
         key = self._get_key(config.read_user_config('private_key_file'))
         user = config.read_user_config('user')
+        warehouse = config.read_config('warehouse')
+        role = config.read_config('role')
         logger.debug("Connecting to Snowflake database {} as {}".format(db,
             user))
+        logger.debug("Role {}, warehouse {}".format(role, warehouse))
         try:
             if not key:
                 logger.warning('Connecting to Snowflake using password. Please use key-pair auth instead.')
-                return sfc.connect(private_key=config.read_user_config('password'),
+                return sfc.connect(password=config.read_user_config('password'),
                         user=user,
                         account=config.read_config('account'),
-                        warehouse=config.read_config('warehouse'),
+                        warehouse=warehouse,
                         database=db,
                         autocommit=False,
+                        role=role,
                         validate_default_parameters=True,
                         schema='PUBLIC')
             return sfc.connect(private_key=key,
                     user=user,
                     account=config.read_config('account'),
-                    warehouse=config.read_config('warehouse'),
+                    warehouse=warehouse,
                     database=db,
                     autocommit=False,
+                    role=role,
                     #validate_default_parameters=True,
                     schema='PUBLIC')
         except DatabaseError as de:
@@ -115,7 +120,7 @@ class Snowflake():
         assert self.SF_VALID_NAME.match(newdb), (f"{newdb} is not a valid Snowflake"
                 " identifier")
         assert newdb.strip().upper() != self.SF_PROD_NAME, ("Trying to create new database"
-                " with name dwh...")     
+                f" with name {self.SF_PROD_NAME} (which is production db name!)")     
         assert newdb.strip().upper() != self.SF_STAGING_NAME or force, (
                 f"Trying to recreate {self.SF_STAGING_NAME} without --force.")
         
