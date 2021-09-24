@@ -31,7 +31,7 @@ def deploy(args):
 
 @register_action
 def migrate(args):
-    """Prepares release candidate file and then deploys it."""
+    """prepare + deploy """
     prepare(args)
     deploy(args)
 
@@ -51,6 +51,11 @@ def sync(args):
     release.sync(dry_run=args.dry_run)
 
 @register_action
+def test_sync(args):
+    """Test release on a separate clone (run it before creating pull request)."""
+    release.test_sync()
+
+@register_action
 def compare(args):
     """Compares Snowflake and current branch DDLs."""
     if args.file:
@@ -64,18 +69,12 @@ def diff(args):
     repo.diff_from_prod()
 
 @register_action
-def test_sync(args):
-    """Test release on a separate clone (run it before creating pull request)."""
-    release.test_sync()
-
-@register_action
 def abandoned(args):
     """Compares active branches and development clones."""
     release.compare_branches_and_clones()
 
 def main():
     jobs = list(JOBS.keys())
-    jobs.sort()
 
     description = """  Git <-> Snowflake sync and automatic deployment. See
   README.md file for full documentation.
