@@ -110,6 +110,8 @@ class Snowflake():
             return cur.fetchall()
         except SfError as e:
             conn.rollback()
+            if "This session does not have a current database" in str(e):
+                logger.info("Is this your first run in this branch and the database was not cloned? Try 'clone' first.")
             raise RuntimeError(e)
         finally:
             conn.close()
