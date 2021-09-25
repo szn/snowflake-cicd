@@ -22,6 +22,7 @@ def register_action(function):
 @register_action
 def prepare(args) -> int:
     """Prepares release candidate file."""
+    model.get_all_ddls()
     model.prepare_release_candidate(force=args.force)
 
 @register_action
@@ -34,6 +35,11 @@ def migrate(args):
     """prepare + deploy """
     prepare(args)
     deploy(args)
+
+@register_action
+def validate(args):
+    """Validates all .sql files in model directory"""
+    model.get_all_ddls()
 
 @register_action
 def history(args):
