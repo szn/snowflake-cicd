@@ -51,7 +51,7 @@ class Release():
 
         if len(files_added) > 0:
             raise RuntimeError("Files present in {} folder that were not applied on the "
-                    "database.\nYou have to sync first.".format(self.RELEASES_DIR))
+                    "database.\nYou have to 'sync' first.".format(self.RELEASES_DIR))
 
     def sync(self, branch=None, dry_run=False) -> None:
         """Syncs non-applied changes in releases and model folders."""
