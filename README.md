@@ -1,24 +1,21 @@
-# DataWarehouse Snowflake GIT repo
+# Snowflake CICD utility
 
-The aim of this repository is to fully manage our new shiny Snowflake instance. 
-
-## What is this repository for?
-
-This repository acts as the main source of truth for Snowflake based data model. It consist of model DDL scripts (in `model` folder) and deployment scripts (in `scripts` folder).
+Python based **CICD** tool for for managing Snowflake databases.
 
 **Table of contents:**
 
 1. [Installation](#installation)
-2. [Usage](#usage)
-3. [Work cycle](#work-cycle)
-4. [Use cases](#use-cases)
-5. [How it works](#how-it-works)
-6. [Troubleshooting](#troubleshooting)
+2. [Configuration](#configuration)
+3. [Usage](#usage)
+4. [Work cycle](#work-cycle)
+5. [Use cases](#use-cases)
+6. [How it works](#how-it-works)
+7. [Troubleshooting](#troubleshooting)
 
 <a name="installation"></a>
 ## Installation
 
-#### 1. Python
+#### 1. Install Python
 
 Make sure that `python3` executable is present in your path:
 
@@ -37,20 +34,21 @@ Deployment script won't work with Python2!
 This should be as easy as running:
 
 ```sh
-$ python3 -m pip install -r script/requirements.txt
+$ python3 -m pip install -r requirements.txt
 ```
 
 Of course you can use `pip` instead, but this way it easier to make sure the packages will be installed in a proper location.
 
 Feel free to use one of Python's environment managers.
 
-#### 3. Setup Snowflake connection
+<a name="configuration"></a>
+## Configuration
 
 Current version supports [Key Pair Authentication](https://docs.snowflake.com/en/user-guide/python-connector-example.html#using-key-pair-authentication) with Snowflake. Only unencrypted keys are supported! There is an undocumented username+password method but should not be used.
 
-If you have your key pair already generated you can jump to section **3b**.
+If you have your key pair already generated you can jump to section **3**.
 
-##### 3a. Generate key pair
+#### 1. Generate key pair
 
 Generate unencrypted private key:
 
@@ -67,7 +65,9 @@ $ openssl rsa -in [username]_snowflake.p8 -pubout -out [username]_snowflake.pub
 Assign the public key to the Snowflake user using ALTER USER. Run the query using your Snowflake's client:
 
 ```sql
-alter user [username] set rsa_public_key='MIIBIjANBgkqh...';
+alter user [username] set rsa_public_key='MIIBIjANBgkqh...
+WbyzHiMVJw8u+...
+xwIDAQAB';
 ```
 
 To fill in the `rsa_public_key` part you have to copy `[username]_snowflake.pub` file contents and paste it in SQL console.
@@ -80,12 +80,33 @@ Now place your keys in a safe location. For Linux and OSX this can be for exampl
 $ mv [username]_snowflake.* ~/.ssh/
 ```
 
-##### 3b. Create a configuration file
+#### 2. Prepare data model repository
 
-Copy `conn.ini-sample` file to `.conn.ini` and fill it in:
+Prepare (or reuse existing) GIT repository that holds data model.
+
+If you don't have one, you can follow this procedure:
 
 ```sh
-$ cp script/conn.ini-sample .conn.ini
+# you are in `snowflake-cicd` folder
+$ cp model-repo-sample ../data_model
+$ cd ../data_model
+$ git init
+```
+
+if you have one, make sure to create `relases` folder inside, and copy
+`.gitignore` and `.conn.ini`:
+
+```sh
+# you are in `snowflake-cicd` folder
+$ cp -r releases .conn.ini ../my_data_model
+$ cat .gitignore >> ../.gitignore
+```
+
+#### 3. Update configuration file
+
+Go to your model GIT repository, and open `.conn.ini` file:
+
+```sh
 $ edit .conn.ini
 ```
 
@@ -93,14 +114,19 @@ In the `.conn.ini` file you have to fill in at least two fields: `user` and `pri
 
 Don't worry. The `.conn.ini` file won't be added to the repository (it's included in `.gitignore`).
 
+#### 4. Add **CICD** to your path
+
+This step is OS specifix, but make sure `cicd` is included in
+your `$PATH` (unix bases systems) or `%PATH%` on Windows.
+
 <a name="usage"></a>
 ## Usage
 
-You can run `cicd.sh` without arguments to see help:
+You can run `cicd` without arguments to see help:
 
 ```
-./cicd.sh
-usage: ./cicd.sh [-h] [-v] [-t] [-f]
+cicd
+usage: cicd [-h] [-v] [-t] [-f]
                  {abandoned,clone,compare,deploy,diff,history,migrate,prepare,sync,test_sync}
                  [{abandoned,clone,compare,deploy,diff,history,migrate,prepare,sync,test_sync} ...]
 
@@ -108,19 +134,21 @@ Git <-> Snowflake sync and automatic deployment.
 
 Actions:
 
-  abandoned             Compares active branches and development clones.
-  clone                 Clones (or replaces) database based on prod.
-  compare               Compares prod and current branch DDLs.
-  deploy                Deploys changes from release candidate file.
-  diff                  Prints diff from production.
-  history               Prints release history.
-  migrate               Prepares release candidate file and then deploys it.
   prepare               Prepares release candidate file.
+  deploy                Deploys changes from release candidate file.
+  migrate               prepare + deploy 
+  validate              Validates all .sql files in model directory
+  history               Prints release history.
+  clone                 Clones (or replaces) database based on prod.
   sync                  Syncs unapplied changes from model and releases dirs.
   test_sync             Test release on a separate clone (run it before creating pull request).
+  compare               Compares Snowflake and current branch DDLs.
+  diff                  Prints diff from production.
+  abandoned             Compares active branches and development clones.
 
 positional arguments:
-  {abandoned,clone,compare,deploy,diff,history,migrate,prepare,sync,test_sync}
+  {prepare,deploy,migrate,validate,history,clone,sync,test_sync,compare,diff,abandoned}
+                        Action to run
                         Action to run
 
 optional arguments:
@@ -128,6 +156,7 @@ optional arguments:
   -v, --verbose         Verbose mode. Shows SQL statements.
   -t, --dry-run         Show SQL to be executed, but doesn't run it.
   -f, --force           Force command without yes/no question asked in terminal.
+  --file [FILE]         Filename for compare action
 ```
 
 <a name="actions"></a>
@@ -263,7 +292,7 @@ In the example above we can see that:
 This is an equivalent of:
 
 ```sh
-$ ./cicd.sh prepare deploy
+$ cicd prepare deploy
 ```
 
 In other words it prepares `releases/release_candidate.sql` file first, and then releases it. This can work only if you are making safe changes (as described in [prepare](#prepare) action).
@@ -403,7 +432,7 @@ Running release file releases/ feature_DW-1249-create-pre-deploy-and-post-deploy
 
 ##### `--help`
 
-Displays help message. Running `./cicd.sh` without arguments will also cause the script to show help.
+Displays help message. Running **CICD** without arguments will also cause the script to show help.
 
 <a name="verbose"></a>
 ##### `--verbose`
@@ -448,7 +477,7 @@ We have a branch to work on. Now we need a fresh clone of production to have a s
 Clone database into new `_DEV_FEATURE_A` with:
 
 ```sh
-$ ./cicd.sh clone
+$ cicd clone
 ```
 
 (read more about [cloning](#clone))
@@ -460,7 +489,7 @@ Now we have a new branch `feature/a` and new development clone `_DEV_FEATURE_A`.
 Work on files in the `model/` folder and [migrate](#migrate) all the changes with:
 
 ```sh
-$ ./cicd.sh migrate
+$ cicd migrate
 ```
 
 [Migrate](#migrate) is actually running two tasks: [prepare](#prepare) followed by [deploy](#deploy). The second step can raise an error if you made an [unsafe change](#unsafe-changes). It usually happens the moment you changed table or stream, or you dropped a file from `model` folder.
@@ -474,7 +503,7 @@ Code placeholder (<<HERE>>) found in the release candidate file.
 You have to manually change the `releases/release_candidate.sql` file as described in [unsafe changes](#unsafe-changes) section. Once done you can repeat the second step with:
 
 ```sh
-$ ./cicd.sh deploy
+$ cicd deploy
 ```
 
 You should notice that while you modify files in `model` folder and deploy your changes in your clone, there is a new file being updated after each action. It's `releases/feature_a.sql` file. This file holds all the changes you've made.
@@ -486,19 +515,19 @@ You are give three ways to check your changes. Let's start from source code leve
 To preview detailed [diff](#diff) of your branch against production run:
 
 ```sh
-$ ./cicd.sh diff
+$ cicd diff
 ```
 
 You can also compare all the releases applied on your clone and compare the with production by running [history](#history) action:
 
 ```sh
-$ ./cicd.sh history
+$ cicd history
 ```
 
 The last option to examine your changes is it preview all the objects definitions changed in your cloned database since it's creation. To do so run [compare](#compare):
 
 ```sh
-$ ./cicd.sh compare
+$ cicd compare
 ```
 
 #### 5. Test your changes
@@ -506,7 +535,7 @@ $ ./cicd.sh compare
 Before submitting a pull-request test your changes against a fresh copy of your database. There is a command that automates all the steps. It [test_sync](#test_sync):
 
 ```sh
-$ ./cicd.sh test_sync
+$ cicd test_sync
 ```
 
 If it's all good you are ready to create a pull-request!
@@ -523,17 +552,17 @@ All situations in which you modify an object DDL. This including renaming the ob
 This is the simplest scenario. Open any `.sql` file under `model/` folder and perform changes. Then run:
 
 ```sh
-$ ./cicd.sh migrate
+$ cicd migrate
 ```
 
 The script will detect the change and reapply it on the server. 
 
 ##### b) [unsafe changes](#unsafe-changes)
 
-Change table or stream definition in the `model/` folder and commit you changes. Then run:
+Change table or stream definition in the `model/` folder and commit your changes. Then run:
 
 ```sh
-$ ./cicd.sh prepare
+$ cicd prepare
 ```
 
 Open the `releases/release_candidate.sql` file. You will notice that the changed table is listed in the release_candidate text, and you have to manually add a proper `ALTER TABLE` SQL statement.
@@ -541,25 +570,25 @@ Open the `releases/release_candidate.sql` file. You will notice that the changed
 Once done run:
 
 ```sh
-$ ./cicd.sh deploy
+$ cicd deploy
 ```
 
 #### 2. Adding a new object
 
-It's as simple as adding a new file into `model/` folder and running:
+It's as simple as adding a new file into `model/` folder,  and commiting your changes, and running:
 
 ```sh
-$ ./cicd.sh migrate
+$ cicd migrate
 ```
 
 This works regardless the type of new object.
 
 #### 3. Dropping an object
 
-Remove a file from the `model/` folder and commit you changes. Then run:
+Remove a file from the `model/` folder and commit your changes. Then run:
 
 ```sh
-$ ./cicd.sh prepare
+$ cicd prepare
 ```
 
 Open the `releases/release_candidate.sql` file. You will notice that the dropped file is listed in the release_candidate text, and you have to manually add a proper `DROP OBJECT` SQL statement.
@@ -567,7 +596,7 @@ Open the `releases/release_candidate.sql` file. You will notice that the dropped
 Once done run:
 
 ```sh
-$ ./cicd.sh deploy
+$ cicd deploy
 ```
 
 #### 4. Altering a database state
@@ -575,7 +604,7 @@ $ ./cicd.sh deploy
 All the other SQL statements that are not tracked in the `model/` folder can be also applied and tracked. To do so simply run:
 
 ```sh
-$ ./cicd.sh prepare
+$ cicd prepare
 ```
 
 This will generate an empty `releases/release_candidate.sql` file. Open it and add any SQL code you like.
@@ -583,7 +612,7 @@ This will generate an empty `releases/release_candidate.sql` file. Open it and a
 Once done run:
 
 ```sh
-$ ./cicd.sh deploy
+$ cicd deploy
 ```
 
 <a name="#how-it-works"></a>
