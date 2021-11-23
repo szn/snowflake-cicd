@@ -4,8 +4,8 @@ from datetime import datetime
 
 from git import Repo, InvalidGitRepositoryError
 
-from utils.log import logger
-from utils.config import config
+from .log import logger
+from .config import config
 
 
 class DWHRepo(Repo):
@@ -77,7 +77,11 @@ class DWHRepo(Repo):
         """Adds release_file to stage and commits it."""
         self.index.add([release_file])
         self.index.commit('(DWH new release)')
-        self.remote(name='origin').push()
+        try:
+            self.remote(name='origin').push()
+        except (ValueError):
+            logger.error('Can\'t push changes to remote!')
+
         
     def is_model_clean(self):
         """Logs all the changed (uncommited) files in repo."""
@@ -111,5 +115,3 @@ try:
 except InvalidGitRepositoryError:
     logger.error('There is no GIT repo in this directory (or parent folders)')
     quit(-1)
-
-

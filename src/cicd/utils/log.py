@@ -5,9 +5,9 @@ from termcolor import colored
 
 logger = logging.getLogger("snowflake.cicd")
 
-def init_logger(args):
+def init_logger(args=None):
     coloredlogs.install(
-            level='DEBUG' if args.verbose else 'INFO',
+            level='DEBUG' if args and args.verbose else 'INFO',
             logger=logger,
             fmt='%(asctime)s %(programname)s %(message)s',
             programname='>',
@@ -28,7 +28,7 @@ def init_logger(args):
                     'warning': {'color': 'yellow'}})
 
     logging.getLogger("snowflake.connector.network").disabled = False
-    logging.getLogger("snowflake.cicd").level = logging.DEBUG if args.verbose else logging.INFO
+    logging.getLogger("snowflake.cicd").level = logging.DEBUG if args and args.verbose else logging.INFO
 
 def is_debug():
     return logger.level <= logging.DEBUG

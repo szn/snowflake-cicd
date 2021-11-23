@@ -4,8 +4,8 @@ from io import StringIO
 import sqlparse
 from termcolor import colored, cprint
 
-from utils.utils import get_file_contents
-from utils.log import logger
+from .utils import get_file_contents
+from .log import logger
 
 TABLE_DIR    = re.compile(r'/tables?/', re.I)
 CREATE_TABLE = re.compile(r'create\s+((or\s+replace\s+)|(if\s+not\s+exists\s+))?table', re.I)
