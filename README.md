@@ -110,8 +110,8 @@ In the `.snowflake-cicd.ini` file you have to fill in at least two fields: `user
 
 You can run `cicd` without arguments to see help:
 
-```
-cicd
+```sh
+$ cicd
 usage: cicd [-h] [-v] [-t] [-f]
                  {abandoned,clone,compare,deploy,diff,history,migrate,prepare,sync,test_sync}
                  [{abandoned,clone,compare,deploy,diff,history,migrate,prepare,sync,test_sync} ...]
