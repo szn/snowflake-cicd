@@ -88,36 +88,22 @@ If you don't have one, you can follow this procedure:
 
 ```sh
 # you are in `snowflake-cicd` folder
-$ cp model-repo-sample ../data_model
+$ cp -r model-repo-sample ../data_model
 $ cd ../data_model
 $ git init
 ```
 
-if you have one, make sure to create `relases` folder inside, and copy
-`.gitignore` and `.conn.ini`:
+#### 3. Update configuration file
+
+Go to your model GIT repository, and open `.snowflake-cicd.ini` file:
 
 ```sh
 # you are in `snowflake-cicd` folder
-$ cp -r releases .conn.ini ../my_data_model
-$ cat .gitignore >> ../.gitignore
+$ cp snowflake-cicd.ini ~/.snowflake-cicd.ini
+$ edit .snowflake-cicd.ini
 ```
 
-#### 3. Update configuration file
-
-Go to your model GIT repository, and open `.conn.ini` file:
-
-```sh
-$ edit .conn.ini
-```
-
-In the `.conn.ini` file you have to fill in at least two fields: `user` and `private_key`.
-
-Don't worry. The `.conn.ini` file won't be added to the repository (it's included in `.gitignore`).
-
-#### 4. Add **CICD** to your path
-
-This step is OS specifix, but make sure `cicd` is included in
-your `$PATH` (unix bases systems) or `%PATH%` on Windows.
+In the `.snowflake-cicd.ini` file you have to fill in at least two fields: `user` and `private_key`.
 
 <a name="usage"></a>
 ## Usage

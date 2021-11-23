@@ -4,10 +4,10 @@ import sys
 import argparse
 from argparse import RawTextHelpFormatter
 
-from utils.model import model
-from utils.dwhrepo import repo
-from utils.log import logger, init_logger, headline
-from utils.release import release
+from .utils.model import model
+from .utils.dwhrepo import repo
+from .utils.log import logger, init_logger, headline
+from .utils.release import release
 
 JOBS = {}
 
@@ -90,7 +90,7 @@ Actions:\n\n"""
         description += f"  {job:10}\t\t{JOBS[job]}\n"
 
     parser = argparse.ArgumentParser(add_help=True,
-            prog="./cicd.sh",
+            prog="cicd",
             formatter_class=RawTextHelpFormatter,
             description=description)
     parser.add_argument("-v", "--verbose", help="Verbose mode. Shows SQL "

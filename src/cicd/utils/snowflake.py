@@ -8,10 +8,10 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import dsa
 from cryptography.hazmat.primitives import serialization
 
-from utils.log import logger, is_debug
-from utils.config import config
-from utils.sql import split_sql, print_sql, RESUME_TASK
-from utils.utils import yes_or_no
+from .log import logger, is_debug
+from .config import config
+from .sql import split_sql, print_sql, RESUME_TASK
+from .utils import yes_or_no
 
 class Snowflake():
     """Snowflake connector wrapper."""

@@ -45,8 +45,8 @@
                 }
             },
             "type": "shell",
-            "command": "python3",
-            "args": ["script/cicd.py", "--dry-run", "--verbose", "deploy"],
+            "command": "cicd",
+            "args": ["--dry-run", "--verbose", "deploy"],
             "group": "test",
             "presentation": {
                 "reveal": "always",
@@ -62,8 +62,8 @@
                 }
             },
             "type": "shell",
-            "command": "python3",
-            "args": ["script/cicd.py", "deploy"],
+            "command": "cicd",
+            "args": ["deploy"],
             "group": "build",
             "presentation": {
                 "reveal": "always",
@@ -79,8 +79,8 @@
                 }
             },
             "type": "shell",
-            "command": "python3",
-            "args": ["script/cicd.py", "history"],
+            "command": "cicd",
+            "args": ["history"],
             "presentation": {
                 "reveal": "always",
                 "showReuseMessage": false,
@@ -95,8 +95,8 @@
                 }
             },
             "type": "shell",
-            "command": "python3",
-            "args": ["script/cicd.py", "migrate"],
+            "command": "cicd",
+            "args": ["migrate"],
             "group": "build",
             "presentation": {
                 "reveal": "always",
@@ -112,8 +112,8 @@
                 }
             },
             "type": "shell",
-            "command": "python3",
-            "args": ["script/cicd.py", "clone"],
+            "command": "cicd",
+            "args": ["clone"],
             "group": "build",
             "presentation": {
                 "reveal": "always",
@@ -129,8 +129,8 @@
                 }
             },
             "type": "shell",
-            "command": "python3",
-            "args": ["script/cicd.py", "sync"],
+            "command": "cicd",
+            "args": ["sync"],
             "group": "build",
             "presentation": {
                 "reveal": "always",
@@ -146,8 +146,8 @@
                 }
             },
             "type": "shell",
-            "command": "python3",
-            "args": ["script/cicd.py", "diff"],
+            "command": "cicd",
+            "args": ["diff"],
             "presentation": {
                 "reveal": "always",
                 "showReuseMessage": false,
@@ -162,13 +162,13 @@
                 }
             },            
             "type": "shell",
-            "command": "python3",
+            "command": "cicd",
             "presentation": {
                 "reveal": "always",
                 "showReuseMessage": false,
                 "clear": true
             },
-            "args": ["script/cicd.py", "prepare"],
+            "args": ["prepare"]
         },
         {
             "label": "_compare",
@@ -178,13 +178,13 @@
                 }
             },            
             "type": "shell",
-            "command": "python3",
+            "command": "cicd",
             "presentation": {
                 "reveal": "always",
                 "showReuseMessage": false,
                 "clear": true
             },
-            "args": ["script/cicd.py", "compare", "--file", "${file}"]
-        },
+            "args": ["compare", "--file", "${file}"]
+        }
     ]
 }

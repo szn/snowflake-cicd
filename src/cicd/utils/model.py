@@ -3,13 +3,13 @@ import os
 import re
 from pathlib import Path
 
-from utils.log import logger, is_debug
-from utils.dwhrepo import repo
-from utils.snowflake import sf
-from utils.release import release
-from utils.sql import print_sql, sql_meta, get_diff_sql, statement_cleanup
-from utils.utils import get_file_contents
-from utils.config import config
+from .log import logger, is_debug
+from .dwhrepo import repo
+from .snowflake import sf
+from .release import release
+from .sql import print_sql, sql_meta, get_diff_sql, statement_cleanup
+from .utils import get_file_contents
+from .config import config
 
 
 class Model():

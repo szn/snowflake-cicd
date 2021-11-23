@@ -2,12 +2,12 @@ import os
 import re
 from datetime import datetime
 
-from utils.config import config
-from utils.log import logger, is_debug
-from utils.utils import get_file_contents, hexDigest, remove_file
-from utils.dwhrepo import repo
-from utils.snowflake import sf
-from utils.sql import sql_meta, print_sql
+from .config import config
+from .log import logger, is_debug
+from .utils import get_file_contents, hexDigest, remove_file
+from .dwhrepo import repo
+from .snowflake import sf
+from .sql import sql_meta, print_sql
 
 class Release():
     """Performs releases and handles release files."""
