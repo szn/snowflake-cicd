@@ -10,12 +10,13 @@ from .config import config
 
 class DWHRepo(Repo):
     """Wrapper class git git.Repo to handle DWH repository specific tasks."""
-    MODEL_DIR = config.read_config('model_dir', default='model')
+    MODEL_DIR = None
     SF_SAFE   = re.compile(r'\W')
 
     def __init__(self):
         """Inits the repo from parent folder and initialise _tags"""
         super().__init__(search_parent_directories=True)
+        DWHRepo.MODEL_DIR = config.read_config('model_dir', default='model')
         self._tags = sorted(self.tags, key=lambda t: t.commit.committed_datetime)
 
     def get_branch(self, filename_safe=True):
@@ -113,5 +114,8 @@ class DWHRepo(Repo):
 try:
     repo = DWHRepo()
 except InvalidGitRepositoryError:
-    logger.error('There is no GIT repo in this directory (or parent folders)')
+    logger.error('Run cicd tool inside a data model GIT repository. See README for details.')
+    quit(-1)
+except AssertionError as e:
+    logger.error(e)
     quit(-1)
