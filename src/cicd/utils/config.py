@@ -7,9 +7,9 @@ from pathlib import Path
 class Config():
     """Config wrapper that reads global config and user config."""
 
-    PROJECT_ROOT=path.join(path.dirname(path.realpath(__file__)), '..')
+    PROJECT_ROOT = path.join(path.dirname(path.realpath(__file__)), '..')
     CONFIG_INI = path.join(PROJECT_ROOT, 'config.ini')
-    HOME_DIR=Path.home()
+    HOME_DIR = Path.home()
     CONN_INI = path.join(HOME_DIR, '.snowflake-cicd.ini')
 
     def __init__(self):
