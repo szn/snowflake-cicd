@@ -188,6 +188,8 @@ class Snowflake():
     
     def get_ddl(self, branch, o_type, o_name) -> str:
         """Returns object DDL."""
+        if o_type.lower() == 'stage':
+            return f'Unable to get DDL for stage {o_name}'
         sql = config.sql('get_ddl').format(o_type=o_type, o_name=o_name,
                                            parameters="()" if o_type=="PROCEDURE" else "")
         return self.run_single_statament(sql, branch)[0][0]
