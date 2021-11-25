@@ -182,7 +182,7 @@ class Snowflake():
         
         dictionary = {}
         for obj in all_objects:
-            dictionary[(obj[2] + '#' + obj[0] + '.' + obj[1]).upper()] = (obj[0] + '.' + obj[1], obj[2], obj[3])
+            dictionary[(obj[2].replace(' ', '_') + '#' + obj[0] + '.' + obj[1]).upper()] = (obj[0] + '.' + obj[1], obj[2], obj[3])
 
         return dictionary
     
